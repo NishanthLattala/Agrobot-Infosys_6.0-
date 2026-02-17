@@ -1,0 +1,412 @@
+{% extends &quot;base.html&quot; %}
+{% block title %}Dashboard - AI-AgroBot{% endblock %}
+{% block extra_css %}
+&lt;style&gt;
+.stat-card {
+transition: transform 0.3s ease;
+border-radius: 15px;
+overflow: hidden;
+}
+.stat-card:hover {
+transform: translateY(-5px);
+}
+.chart-container {
+position: relative;
+height: 300px;
+}
+.progress {
+height: 10px;
+}
+.activity-item {
+border-left: 3px solid #198754;
+padding-left: 15px;
+margin-bottom: 20px;
+}
+.quick-action-btn {
+transition: all 0.3s ease;
+}
+.quick-action-btn:hover {
+transform: scale(1.05);
+}
+&lt;/style&gt;
+{% endblock %}
+{% block content %}
+&lt;div class=&quot;container-fluid py-4&quot;&gt;
+&lt;!-- Welcome Header --&gt;
+&lt;div class=&quot;row mb-4&quot;&gt;
+&lt;div class=&quot;col-12&quot;&gt;
+&lt;div class=&quot;card bg-success text-white&quot;&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;row align-items-center&quot;&gt;
+&lt;div class=&quot;col-md-8&quot;&gt;
+&lt;h1 class=&quot;card-title mb-3&quot;&gt;Welcome back, {{ current_user.name or &#39;Farmer&#39;
+}}!&lt;/h1&gt;
+&lt;p class=&quot;card-text opacity-75&quot;&gt;
+{% if current_user.primary_crop %}
+
+Monitoring your {{ current_user.primary_crop }} farm in {{ current_user.region or
+&#39;your region&#39; }}
+{% else %}
+Ready to optimize your farming operations today!
+{% endif %}
+&lt;/p&gt;
+&lt;div class=&quot;d-flex flex-wrap gap-2&quot;&gt;
+&lt;span class=&quot;badge bg-light text-dark&quot;&gt;{{ current_user.experience_level|title }}
+Level&lt;/span&gt;
+{% if current_user.primary_crop %}
+&lt;span class=&quot;badge bg-light text-dark&quot;&gt;{{ current_user.primary_crop }}&lt;/span&gt;
+{% endif %}
+{% if current_user.farm_size %}
+&lt;span class=&quot;badge bg-light text-dark&quot;&gt;{{ current_user.farm_size }} acres&lt;/span&gt;
+{% endif %}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-md-4 text-end&quot;&gt;
+&lt;i class=&quot;bi bi-person-circle display-1 opacity-50&quot;&gt;&lt;/i&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Quick Stats --&gt;
+&lt;div class=&quot;row mb-4&quot;&gt;
+&lt;div class=&quot;col-md-3 mb-3&quot;&gt;
+&lt;div class=&quot;card stat-card border-0 bg-primary text-white shadow&quot;&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;d-flex justify-content-between align-items-center&quot;&gt;
+&lt;div&gt;
+&lt;h6 class=&quot;card-subtitle mb-2 opacity-75&quot;&gt;Total Chats&lt;/h6&gt;
+&lt;h2 class=&quot;card-title mb-0&quot;&gt;{{ total_chats }}&lt;/h2&gt;
+&lt;/div&gt;
+&lt;i class=&quot;bi bi-chat-dots-fill fs-1 opacity-50&quot;&gt;&lt;/i&gt;
+&lt;/div&gt;
+&lt;p class=&quot;card-text small mt-2&quot;&gt;AI conversations this month&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-md-3 mb-3&quot;&gt;
+&lt;div class=&quot;card stat-card border-0 bg-warning text-dark shadow&quot;&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;d-flex justify-content-between align-items-center&quot;&gt;
+&lt;div&gt;
+
+&lt;h6 class=&quot;card-subtitle mb-2 opacity-75&quot;&gt;Images Analyzed&lt;/h6&gt;
+&lt;h2 class=&quot;card-title mb-0&quot;&gt;{{ image_analyses|length }}&lt;/h2&gt;
+&lt;/div&gt;
+&lt;i class=&quot;bi bi-camera-fill fs-1 opacity-50&quot;&gt;&lt;/i&gt;
+&lt;/div&gt;
+&lt;p class=&quot;card-text small mt-2&quot;&gt;Plant health assessments&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-md-3 mb-3&quot;&gt;
+&lt;div class=&quot;card stat-card border-0 bg-success text-white shadow&quot;&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;d-flex justify-content-between align-items-center&quot;&gt;
+&lt;div&gt;
+&lt;h6 class=&quot;card-subtitle mb-2 opacity-75&quot;&gt;Active Days&lt;/h6&gt;
+&lt;h2 class=&quot;card-title mb-0&quot;&gt;24&lt;/h2&gt;
+&lt;/div&gt;
+&lt;i class=&quot;bi bi-calendar-check-fill fs-1 opacity-50&quot;&gt;&lt;/i&gt;
+&lt;/div&gt;
+&lt;p class=&quot;card-text small mt-2&quot;&gt;Days using AI-AgroBot&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-md-3 mb-3&quot;&gt;
+&lt;div class=&quot;card stat-card border-0 bg-info text-white shadow&quot;&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;d-flex justify-content-between align-items-center&quot;&gt;
+&lt;div&gt;
+&lt;h6 class=&quot;card-subtitle mb-2 opacity-75&quot;&gt;Crop Health&lt;/h6&gt;
+&lt;h2 class=&quot;card-title mb-0&quot;&gt;85%&lt;/h2&gt;
+&lt;/div&gt;
+&lt;i class=&quot;bi bi-heart-fill fs-1 opacity-50&quot;&gt;&lt;/i&gt;
+&lt;/div&gt;
+&lt;p class=&quot;card-text small mt-2&quot;&gt;Based on recent analyses&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Main Content --&gt;
+&lt;div class=&quot;row&quot;&gt;
+&lt;!-- Left Column --&gt;
+&lt;div class=&quot;col-lg-8&quot;&gt;
+&lt;!-- Recent Activity --&gt;
+&lt;div class=&quot;card mb-4&quot;&gt;
+&lt;div class=&quot;card-header bg-white d-flex justify-content-between align-items-center&quot;&gt;
+
+&lt;h5 class=&quot;mb-0&quot;&gt;Recent Activity&lt;/h5&gt;
+&lt;a href=&quot;{{ url_for(&#39;chat&#39;) }}&quot; class=&quot;btn btn-sm btn-success&quot;&gt;View All&lt;/a&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+{% if recent_chats %}
+&lt;div class=&quot;timeline&quot;&gt;
+{% for chat in recent_chats %}
+&lt;div class=&quot;activity-item&quot;&gt;
+&lt;div class=&quot;d-flex justify-content-between&quot;&gt;
+&lt;h6 class=&quot;mb-1&quot;&gt;
+&lt;i class=&quot;bi bi-chat-left-text text-success me-2&quot;&gt;&lt;/i&gt;
+{{ chat.user_message[:50] }}{% if chat.user_message|length &gt; 50 %}...{% endif %}
+&lt;/h6&gt;
+&lt;small class=&quot;text-muted&quot;&gt;{{ chat.created_at.strftime(&#39;%b %d, %H:%M&#39;) if
+chat.created_at else &#39;&#39; }}&lt;/small&gt;
+&lt;/div&gt;
+&lt;p class=&quot;mb-1 small text-muted&quot;&gt;
+{% if chat.bot_response|length &gt; 100 %}
+{{ chat.bot_response[:100] }}...
+{% else %}
+{{ chat.bot_response }}
+{% endif %}
+&lt;/p&gt;
+&lt;/div&gt;
+{% endfor %}
+&lt;/div&gt;
+{% else %}
+&lt;div class=&quot;text-center py-4&quot;&gt;
+&lt;i class=&quot;bi bi-chat-dots fs-1 text-muted mb-3&quot;&gt;&lt;/i&gt;
+&lt;p class=&quot;text-muted&quot;&gt;No recent activity. Start chatting with AI!&lt;/p&gt;
+&lt;a href=&quot;{{ url_for(&#39;chat&#39;) }}&quot; class=&quot;btn btn-success&quot;&gt;Start Chat&lt;/a&gt;
+&lt;/div&gt;
+{% endif %}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Quick Actions --&gt;
+&lt;div class=&quot;row mb-4&quot;&gt;
+&lt;div class=&quot;col-12&quot;&gt;
+&lt;h5 class=&quot;mb-3&quot;&gt;Quick Actions&lt;/h5&gt;
+&lt;div class=&quot;row g-3&quot;&gt;
+&lt;div class=&quot;col-sm-6 col-md-3&quot;&gt;
+&lt;a href=&quot;{{ url_for(&#39;chat&#39;) }}&quot; class=&quot;card quick-action-btn border-0 shadow-sm text-
+decoration-none&quot;&gt;
+&lt;div class=&quot;card-body text-center p-3&quot;&gt;
+&lt;i class=&quot;bi bi-chat-dots-fill fs-1 text-success mb-2&quot;&gt;&lt;/i&gt;
+&lt;h6 class=&quot;mb-0&quot;&gt;Ask AI&lt;/h6&gt;
+&lt;/div&gt;
+
+&lt;/a&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-sm-6 col-md-3&quot;&gt;
+&lt;a href=&quot;{{ url_for(&#39;weather&#39;) }}&quot; class=&quot;card quick-action-btn border-0 shadow-sm
+text-decoration-none&quot;&gt;
+&lt;div class=&quot;card-body text-center p-3&quot;&gt;
+&lt;i class=&quot;bi bi-cloud-sun-fill fs-1 text-info mb-2&quot;&gt;&lt;/i&gt;
+&lt;h6 class=&quot;mb-0&quot;&gt;Weather&lt;/h6&gt;
+&lt;/div&gt;
+&lt;/a&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-sm-6 col-md-3&quot;&gt;
+&lt;a href=&quot;{{ url_for(&#39;market_prices&#39;) }}&quot; class=&quot;card quick-action-btn border-0
+shadow-sm text-decoration-none&quot;&gt;
+&lt;div class=&quot;card-body text-center p-3&quot;&gt;
+&lt;i class=&quot;bi bi-graph-up-arrow fs-1 text-warning mb-2&quot;&gt;&lt;/i&gt;
+&lt;h6 class=&quot;mb-0&quot;&gt;Market&lt;/h6&gt;
+&lt;/div&gt;
+&lt;/a&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-sm-6 col-md-3&quot;&gt;
+&lt;a href=&quot;{{ url_for(&#39;crop_planner&#39;) }}&quot; class=&quot;card quick-action-btn border-0 shadow-
+sm text-decoration-none&quot;&gt;
+&lt;div class=&quot;card-body text-center p-3&quot;&gt;
+&lt;i class=&quot;bi bi-calendar-check-fill fs-1 text-danger mb-2&quot;&gt;&lt;/i&gt;
+&lt;h6 class=&quot;mb-0&quot;&gt;Plan Crop&lt;/h6&gt;
+&lt;/div&gt;
+&lt;/a&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Right Column --&gt;
+&lt;div class=&quot;col-lg-4&quot;&gt;
+&lt;!-- Image Analyses --&gt;
+&lt;div class=&quot;card mb-4&quot;&gt;
+&lt;div class=&quot;card-header bg-white&quot;&gt;
+&lt;h5 class=&quot;mb-0&quot;&gt;Recent Image Analyses&lt;/h5&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+{% if image_analyses %}
+&lt;div class=&quot;list-group list-group-flush&quot;&gt;
+{% for analysis in image_analyses %}
+&lt;div class=&quot;list-group-item border-0 px-0&quot;&gt;
+&lt;div class=&quot;d-flex align-items-center&quot;&gt;
+{% if analysis.thumbnail %}
+
+&lt;img src=&quot;{{ url_for(&#39;uploaded_thumbnail&#39;, filename=analysis.thumbnail) }}&quot;
+class=&quot;rounded me-3&quot; width=&quot;60&quot; height=&quot;60&quot; alt=&quot;Analysis&quot;&gt;
+{% else %}
+&lt;div class=&quot;rounded bg-light d-flex align-items-center justify-content-center me-3&quot;
+style=&quot;width: 60px; height: 60px;&quot;&gt;
+&lt;i class=&quot;bi bi-image text-muted&quot;&gt;&lt;/i&gt;
+&lt;/div&gt;
+{% endif %}
+&lt;div class=&quot;flex-grow-1&quot;&gt;
+&lt;h6 class=&quot;mb-1&quot;&gt;{{ analysis.health_status }}&lt;/h6&gt;
+&lt;small class=&quot;text-muted&quot;&gt;{{ analysis.created_at.strftime(&#39;%b %d&#39;) if
+analysis.created_at else &#39;&#39; }}&lt;/small&gt;
+&lt;div class=&quot;progress mt-1&quot; style=&quot;height: 5px;&quot;&gt;
+&lt;div class=&quot;progress-bar bg-success&quot;
+style=&quot;width: {{ analysis.confidence_score * 100 if
+analysis.confidence_score else 70 }}%&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+{% endfor %}
+&lt;/div&gt;
+&lt;div class=&quot;text-center mt-3&quot;&gt;
+&lt;a href=&quot;{{ url_for(&#39;chat&#39;) }}&quot; class=&quot;btn btn-sm btn-outline-success&quot;&gt;Upload More
+Images&lt;/a&gt;
+&lt;/div&gt;
+{% else %}
+&lt;div class=&quot;text-center py-3&quot;&gt;
+&lt;i class=&quot;bi bi-camera fs-1 text-muted mb-3&quot;&gt;&lt;/i&gt;
+&lt;p class=&quot;text-muted&quot;&gt;No image analyses yet&lt;/p&gt;
+&lt;a href=&quot;{{ url_for(&#39;chat&#39;) }}&quot; class=&quot;btn btn-sm btn-success&quot;&gt;Analyze First Image&lt;/a&gt;
+&lt;/div&gt;
+{% endif %}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Weather Widget --&gt;
+&lt;div class=&quot;card mb-4&quot;&gt;
+&lt;div class=&quot;card-header bg-white d-flex justify-content-between align-items-center&quot;&gt;
+&lt;h5 class=&quot;mb-0&quot;&gt;Weather&lt;/h5&gt;
+&lt;small class=&quot;text-muted&quot;&gt;{{ current_user.region or &#39;Your Region&#39; }}&lt;/small&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;text-center&quot;&gt;
+&lt;i class=&quot;bi bi-cloud-sun-fill display-1 text-info mb-3&quot;&gt;&lt;/i&gt;
+&lt;h2&gt;28°C&lt;/h2&gt;
+&lt;p class=&quot;text-muted&quot;&gt;Partly Cloudy&lt;/p&gt;
+&lt;div class=&quot;row text-center&quot;&gt;
+
+&lt;div class=&quot;col-4&quot;&gt;
+&lt;small class=&quot;text-muted d-block&quot;&gt;Humidity&lt;/small&gt;
+&lt;strong&gt;65%&lt;/strong&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-4&quot;&gt;
+&lt;small class=&quot;text-muted d-block&quot;&gt;Wind&lt;/small&gt;
+&lt;strong&gt;12 km/h&lt;/strong&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-4&quot;&gt;
+&lt;small class=&quot;text-muted d-block&quot;&gt;Rain&lt;/small&gt;
+&lt;strong&gt;10%&lt;/strong&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card-footer bg-white&quot;&gt;
+&lt;a href=&quot;{{ url_for(&#39;weather&#39;) }}&quot; class=&quot;btn btn-sm btn-outline-info w-100&quot;&gt;Detailed
+Forecast&lt;/a&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Crop Recommendations --&gt;
+&lt;div class=&quot;row mb-4&quot;&gt;
+&lt;div class=&quot;col-12&quot;&gt;
+&lt;div class=&quot;card&quot;&gt;
+&lt;div class=&quot;card-header bg-white&quot;&gt;
+&lt;h5 class=&quot;mb-0&quot;&gt;Recommended Actions&lt;/h5&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;row&quot;&gt;
+&lt;div class=&quot;col-md-4 mb-3&quot;&gt;
+&lt;div class=&quot;alert alert-success&quot;&gt;
+&lt;h6&gt;&lt;i class=&quot;bi bi-droplet-fill me-2&quot;&gt;&lt;/i&gt;Irrigation&lt;/h6&gt;
+&lt;p class=&quot;small mb-0&quot;&gt;Water your {{ current_user.primary_crop or &#39;crops&#39; }} today
+morning for best results.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-md-4 mb-3&quot;&gt;
+&lt;div class=&quot;alert alert-warning&quot;&gt;
+&lt;h6&gt;&lt;i class=&quot;bi bi-bug-fill me-2&quot;&gt;&lt;/i&gt;Pest Alert&lt;/h6&gt;
+&lt;p class=&quot;small mb-0&quot;&gt;Monitor for aphids. Consider neem oil spray if
+detected.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-md-4 mb-3&quot;&gt;
+&lt;div class=&quot;alert alert-info&quot;&gt;
+
+&lt;h6&gt;&lt;i class=&quot;bi bi-cloud-rain-heavy-fill me-2&quot;&gt;&lt;/i&gt;Weather&lt;/h6&gt;
+&lt;p class=&quot;small mb-0&quot;&gt;Rain expected in 2 days. Plan irrigation accordingly.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Usage Statistics --&gt;
+&lt;div class=&quot;row&quot;&gt;
+&lt;div class=&quot;col-12&quot;&gt;
+&lt;div class=&quot;card&quot;&gt;
+&lt;div class=&quot;card-header bg-white&quot;&gt;
+&lt;h5 class=&quot;mb-0&quot;&gt;Monthly Usage&lt;/h5&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card-body&quot;&gt;
+&lt;div class=&quot;row align-items-center&quot;&gt;
+&lt;div class=&quot;col-md-8&quot;&gt;
+&lt;div class=&quot;chart-container&quot;&gt;
+&lt;!-- Simple chart using Bootstrap --&gt;
+&lt;div class=&quot;d-flex align-items-end&quot; style=&quot;height: 200px;&quot;&gt;
+{% for i in range(7, 0, -1) %}
+&lt;div class=&quot;flex-fill text-center mx-1&quot;&gt;
+&lt;div class=&quot;bg-success rounded-top&quot; style=&quot;height: {{ [30, 45, 60, 75, 90, 65,
+40][i-1] }}px;&quot;&gt;&lt;/div&gt;
+&lt;small class=&quot;text-muted d-block mt-1&quot;&gt;Day {{ i }}&lt;/small&gt;
+&lt;/div&gt;
+{% endfor %}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;col-md-4&quot;&gt;
+&lt;div class=&quot;text-center&quot;&gt;
+&lt;h2&gt;85%&lt;/h2&gt;
+&lt;p class=&quot;text-muted&quot;&gt;Monthly Usage&lt;/p&gt;
+&lt;div class=&quot;progress mb-2&quot; style=&quot;height: 10px;&quot;&gt;
+&lt;div class=&quot;progress-bar bg-success&quot; style=&quot;width: 85%&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p class=&quot;small text-muted&quot;&gt;You&#39;ve used 85% of your monthly AI queries&lt;/p&gt;
+&lt;a href=&quot;{{ url_for(&#39;pricing&#39;) }}&quot; class=&quot;btn btn-sm btn-outline-success&quot;&gt;Upgrade
+Plan&lt;/a&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+{% endblock %}
+{% block extra_js %}
+&lt;script&gt;
+$(document).ready(function() {
+// Fetch weather data
+function fetchWeather() {
+$.get(&#39;/api/weather&#39;, function(response) {
+if (response.success) {
+// Update weather widget
+$(&#39;.weather-temp&#39;).text(response.weather.temperature + &#39;°C&#39;);
+$(&#39;.weather-condition&#39;).text(response.weather.conditions);
+}
+});
+}
+// Fetch market prices
+function fetchMarketPrices() {
+$.get(&#39;/api/market-prices&#39;, function(response) {
+if (response.success) {
+console.log(&#39;Market prices:&#39;, response.prices);
+}
+});
+}
+// Auto-refresh every 5 minutes
+setInterval(fetchWeather, 300000);
+// Initial fetch
+fetchWeather();
+fetchMarketPrices();
+});
+&lt;/script&gt;
+{% endblock %}
