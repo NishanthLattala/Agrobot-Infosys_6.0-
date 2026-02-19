@@ -1,0 +1,10 @@
+flask
+flask-login
+flask-sqlalchemy
+werkzeug
+sqlalchemy
+python-dotenv
+pillow
+google-generativeai
+google-genai
+psycopg2-binary
